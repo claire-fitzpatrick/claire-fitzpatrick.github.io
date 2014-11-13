@@ -27,7 +27,7 @@
 
 			Starling.handleLostContext = true;
 
-			starling = new Starling(ApplicationController, this.stage);
+			starling = new Starling(ApplicationController,this.stage);
 			starling.start();
 		}
 
