@@ -58,6 +58,14 @@
 			
 			loader.load(theURL);
 		}
+		
+		private function slideShowXMLLoaded(e:flash.events.Event):void
+		{
+			slideshowXML = new XML(e.target.data);
+			
+			assetMgr = new AssetManager();
+			assetMgr.verbose = true;
+		}
 
 	}
 
