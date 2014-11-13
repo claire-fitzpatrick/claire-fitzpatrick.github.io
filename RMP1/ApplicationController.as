@@ -38,6 +38,15 @@
 		public function ApplicationController()
 		{
 			// constructor code
+			super();
+			this.addEventListener(FeathersEventType.INITIALIZE, initializeHandle);
+		}
+		private function initializeHandle(e:starling.events.Event):void
+		{
+			this.removeEventListener(FeathersEventType.INITIALIZE, initializeHandle);
+			this.stage.addEventListener(starling.events.Event.RESIZE, stageResized);
+			
+			loadSlideShowXML();
 		}
 
 	}
