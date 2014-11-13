@@ -19,6 +19,8 @@
 	import starling.events.TouchEvent;
 	import starling.events.Touch;
 	import starling.events.TouchPhase;
+	import flash.system.ImageDecodingPolicy;
+	import flash.events.TouchEvent;
 
 
 	public class ApplicationController extends PanelScreen
@@ -64,7 +66,80 @@
 			slideshowXML = new XML(e.target.data);
 			
 			assetMgr = new AssetManager();
-			assetMgr.verbose = true;
+			assetMgr.verbose = true;  
+			
+			var slideList:XMLList = slideshowXML.slide;
+			this.numSlides = slideList.length();
+			
+			for (var i:int = 0; i < this.numSlides; i++)
+			{
+				assetMgr.enqueue(this.ENDPOINT_URL + slideshowXML.@imagePath + slideList[i].@image);
+			}
+			assetMgr.loadQueue(handleAssetsLoading);
+		}
+		
+		private function handleAssetsLoading(ratioLoaded:Number):void
+		{
+			trace("handleAssetsLoading: " + ratioLoaded);
+			
+			if (ratioLoaded == 1)
+			{
+				startApp();
+			}
+		}
+		private function startApp()
+		{
+			this.height = this.stage.stageHeight;
+			this.width = this.stage.stageWidth;
+			
+			new MetalWorksMobileTheme();
+			
+			this.headerProperties.title = "Feathers and XML";
+			
+			var theLayout:VerticalLayout = new VerticalLayout();
+			theLayout.gap = 10;
+			theLayout.horizontalAlign = VerticalLayout.HORIZONTAL_ALIGN_CENTER;
+			this.layout = theLayout;
+			this.displaySlide();
+		}
+		
+		private function displaySlide(slideIndex:uint = 0):void
+		{
+			if (this.activeSlideImage != null)
+			{
+				activeSlideImage.removeEventListener(starling.events.TouchEvent.TOUCH, handleNextSlide);
+				this.removeChild(activeSlideImage);
+			}
+			var slideName:String = this.slideshowXML.slide[slideIndex].@image;
+			
+			var indexOfLastDot:int = slideName.lastIndexOf(".");
+			
+			slideName = slideName.substr(0,indexOfLastDot);
+			
+			activeSlideImage = new Image(this.assetMgr.getTexture(slideName));
+			activeSlideImage.width = this.stage.stageWidth;
+			activeSlideImage.scaleY = activeSlideImage.scaleX;
+			
+			activeSlideImage.addEventListener(starling.events.TouchEvent.TOUCH, handleNextSlide);
+			this.addChild(activeSlideImage);
+		}
+		
+		private function handleNextSlide(e:starling.events.TouchEvent):void
+		{
+			var touch:Touch = e.getTouch(this,TouchPhase.BEGAN);
+			if (touch)
+			{
+				this.currentSlideIndex++;
+				
+				this.currentSlideIndex = this.currentSlideIndex % this.numSlides;
+				this.displaySlide(this.currentSlideIndex);
+			}
+		}
+		
+		protected function stageResized(e:starling.events.Event):void
+		{
+			this.height = this.stage.stageHeight;
+			this.width = this.stage.stageWidth;
 		}
 
 	}
